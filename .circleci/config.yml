@@ -34,5 +34,4 @@ workflows:
     jobs:
       - say-hello
       - print-welcome
-          requires:
-              - say-hello
+          requires: [say-hello]
