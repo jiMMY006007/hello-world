@@ -27,6 +27,15 @@ jobs:
           name: "Say welcome"
           command: "echo welcome!"
 
+  print-env-variable:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: "this is my name >> "
+          command: echo ${My_Name}
+
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
@@ -35,3 +44,4 @@ workflows:
       - say-hello
       - print-welcome:
           requires: [say-hello]
+      - print-env-variable
