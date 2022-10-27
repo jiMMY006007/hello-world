@@ -22,7 +22,8 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - run:
-          command: echo " hello world !! from the output " > output.txt
+          command: |
+            echo " hello world !! from the output " > output.txt
        persist_to_workspace:
           root: ~/     # relative path to our working directory
           paths:      # file globs which will be persisted to the workspace
@@ -35,7 +36,8 @@ jobs:
       attach_workspace:
           at: ~/
       - run:
-          command: cat output.txt
+          command: |
+            cat output.txt
 workflows:
   say-hello-workflow:
     jobs:
