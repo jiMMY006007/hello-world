@@ -13,7 +13,6 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - checkout
       - run:
           name: "this is my name >> "
           command: echo ${My_Name}
@@ -22,7 +21,6 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - checkout
       - run:
           command: echo " hello world !! from the output " > output.txt
        persist_to_workspace:
@@ -34,7 +32,6 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - checkout
       attach_workspace:
           at: ~/
       - run:
