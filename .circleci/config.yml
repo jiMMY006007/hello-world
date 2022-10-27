@@ -22,9 +22,10 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - run:
+          name: "create file"
           command: |
             echo " hello world !! from the output " > output.txt
-       persist_to_workspace:
+      - persist_to_workspace:
           root: ~/     # relative path to our working directory
           paths:      # file globs which will be persisted to the workspace
            - *
@@ -33,7 +34,7 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      attach_workspace:
+      - attach_workspace:
           at: ~/
       - run:
           command: |
