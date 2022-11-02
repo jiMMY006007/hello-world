@@ -6,107 +6,123 @@ commands:
       - run: echo $CIRCLE_WORKFLOW_ID #<< parameters.to >>
 
 jobs:
-  say-hello:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+  # say-hello:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - run:
+  #         name: "Say hello"
+  #         command: "echo Hello, World!"
 
-  print-env-variable:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - run:
-          name: "this is my name >> "
-          command: echo ${My_Name}
-      - print_pipeline_id
+  # print-env-variable:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - run:
+  #         name: "this is my name >> "
+  #         command: echo ${My_Name}
+  #     - print_pipeline_id
 
-  save_hello_world_output:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - run:
-          name: "create file"
-          command: |
-            echo " hello world !! from the output " > output.txt
-      - persist_to_workspace:
-          root: ~/    
-          paths: 
-           - ./*
+  # save_hello_world_output:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - run:
+  #         name: "create file"
+  #         command: |
+  #           echo " hello world !! from the output " > output.txt
+  #     - persist_to_workspace:
+  #         root: ~/    
+  #         paths: 
+  #          - ./*
 
-  print_output_file:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run:
-          command: |
-            cat output.txt
+  # print_output_file:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - attach_workspace:
+  #         at: ~/
+  #     - run:
+  #         command: |
+  #           cat output.txt
 
-  create_infrastructure: 
+  # create_infrastructure: 
+  #     docker:
+  #       - image: amazon/aws-cli
+  #     steps:
+  #       - checkout
+  #       - run:
+  #           name: Create Cloudformation Stack
+  #           command: |
+  #             aws cloudformation deploy \
+  #               --template-file template.yml \
+  #               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+  #               --region us-east-1
+
+  # get_EC2_PublicIpAddress: 
+  #     docker:
+  #       - image: amazon/aws-cli
+  #     steps:
+  #       - checkout
+  #       - run:
+  #           name: get EC2 PublicIpAddress
+  #           command: |
+  #             yum install -y tar gzip
+  #             echo [all] > inventory
+  #             aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> inventory
+  #       - persist_to_workspace:
+  #           root: ~/    
+  #           paths: 
+  #           - ./*
+  # configure_infrastructure: 
+  #     docker:
+  #       - image: python:3.7-alpine3.11
+  #     steps:
+  #       - checkout
+  #       - add_ssh_keys:
+  #               # You can get this ID in the section where you registered the SSH Key
+  #               fingerprints: ["92:1f:f7:b8:87:b3:bf:8d:35:12:d2:1c:49:4a:e3:9e"] 
+  #       - attach_workspace:
+  #           at: ~/
+  #       - run:
+  #           name: Install Ansible
+  #           command: |
+  #             # Install Ansible
+  #             apk add --update ansible
+  #       - run:
+  #           name: Run Playbook and Configure server
+  #           command: |
+  #             ansible-playbook -i inventory main.yml
+  smoke_test:
       docker:
-        - image: amazon/aws-cli
+        - image: alpine:latest
       steps:
-        - checkout
+        - run: apk add --update curl
         - run:
-            name: Create Cloudformation Stack
+            name: smoke test
             command: |
-              aws cloudformation deploy \
-                --template-file template.yml \
-                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-                --region us-east-1
-
-  get_EC2_PublicIpAddress: 
-      docker:
-        - image: amazon/aws-cli
-      steps:
-        - checkout
-        - run:
-            name: get EC2 PublicIpAddress
-            command: |
-              yum install -y tar gzip
-              echo [all] > inventory
-              aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> inventory
-        - persist_to_workspace:
-            root: ~/    
-            paths: 
-            - ./*
-  configure_infrastructure: 
-      docker:
-        - image: python:3.7-alpine3.11
-      steps:
-        - checkout
-        - add_ssh_keys:
-                # You can get this ID in the section where you registered the SSH Key
-                fingerprints: ["92:1f:f7:b8:87:b3:bf:8d:35:12:d2:1c:49:4a:e3:9e"] 
-        - attach_workspace:
-            at: ~/
-        - run:
-            name: Install Ansible
-            command: |
-              # Install Ansible
-              apk add --update ansible
-        - run:
-            name: Run Playbook and Configure server
-            command: |
-              ansible-playbook -i inventory main.yml
-
+              URL="https://blog.udacity.com/"
+              # Test if website exists
+              if curl -s --head ${URL} 
+              then
+                return 0
+              else
+                return 1
+              fi
 workflows:
   my-workflow:
     jobs:
-      - say-hello
-      - print-env-variable:
-          requires: [say-hello]
-      - save_hello_world_output
-      - print_output_file:
-          requires: [save_hello_world_output]
-      - create_infrastructure:
-          requires: [print_output_file]
-      - get_EC2_PublicIpAddress:
-          requires: [create_infrastructure]
-      - configure_infrastructure:
-          requires: [get_EC2_PublicIpAddress]
+      # - say-hello
+      # - print-env-variable:
+      #     requires: [say-hello]
+      # - save_hello_world_output
+      # - print_output_file:
+      #     requires: [save_hello_world_output]
+      # - create_infrastructure:
+      #     requires: [print_output_file]
+      # - get_EC2_PublicIpAddress:
+      #     requires: [create_infrastructure]
+      # - configure_infrastructure:
+      #     requires: [get_EC2_PublicIpAddress]
       
+        - smoke_test
