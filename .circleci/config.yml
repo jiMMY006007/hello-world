@@ -58,6 +58,41 @@ jobs:
                 --template-file template.yml \
                 --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
                 --region us-east-1
+
+  get_EC2_PublicIpAddress: 
+      docker:
+        - image: amazon/aws-cli
+      steps:
+        - checkout
+        - run:
+            name: Create Cloudformation Stack
+            command: |
+              echo [all] > inventory
+              aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> inventory
+        - persist_to_workspace:
+            root: ~/    
+            paths: 
+            - inventory
+  configure_infrastructure: 
+      docker:
+        - image: python:3.7-alpine3.11
+      steps:
+        - checkout
+        - add_ssh_keys:
+                # You can get this ID in the section where you registered the SSH Key
+                fingerprints: ["92:1f:f7:b8:87:b3:bf:8d:35:12:d2:1c:49:4a:e3:9e"] 
+        - attach_workspace:
+            at: ~/
+        - run:
+            name: Install Ansible
+            command: |
+              # Install Ansible
+              apk add --update ansible
+        - run:
+            name: Run Playbook and Configure server
+            command: |
+              ansible-playbook -i inventory main.yml
+
 workflows:
   my-workflow:
     jobs:
@@ -69,5 +104,8 @@ workflows:
           requires: [save_hello_world_output]
       - create_infrastructure:
           requires: [print_output_file]
-
+      - get_EC2_PublicIpAddress:
+          requires: [create_infrastructure]
+      - configure_infrastructure:
+          requires: [get_EC2_PublicIpAddress]
       
