@@ -125,4 +125,4 @@ workflows:
       # - configure_infrastructure:
       #     requires: [get_EC2_PublicIpAddress]
       
-        - smoke_test
+       - smoke_test
