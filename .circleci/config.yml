@@ -65,8 +65,9 @@ jobs:
       steps:
         - checkout
         - run:
-            name: Create Cloudformation Stack
+            name: get EC2 PublicIpAddress
             command: |
+              yum install -y tar gzip
               echo [all] > inventory
               aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> inventory
         - persist_to_workspace:
