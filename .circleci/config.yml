@@ -2,10 +2,6 @@ version: 2.1
 commands:
   print_pipeline_id:
     description: "A very simple command for demonstration purposes"
-    # parameters:
-    #   to:
-    #     type: string
-    #     default: "Hello World"
     steps:
       - run: echo $CIRCLE_WORKFLOW_ID #<< parameters.to >>
 
@@ -36,8 +32,8 @@ jobs:
           command: |
             echo " hello world !! from the output " > output.txt
       - persist_to_workspace:
-          root: ~/     # relative path to our working directory
-          paths:      # file globs which will be persisted to the workspace
+          root: ~/    
+          paths: 
            - ./*
 
   print_output_file:
@@ -49,8 +45,21 @@ jobs:
       - run:
           command: |
             cat output.txt
+
+  create_infrastructure: 
+      docker:
+        - image: amazon/aws-cli
+      steps:
+        - checkout
+        - run:
+            name: Create Cloudformation Stack
+            command: |
+              aws cloudformation deploy \
+                --template-file template.yml \
+                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+                --region us-east-1
 workflows:
-  say-hello-workflow:
+  my-workflow:
     jobs:
       - say-hello
       - print-env-variable:
@@ -58,5 +67,7 @@ workflows:
       - save_hello_world_output
       - print_output_file:
           requires: [save_hello_world_output]
+      - create_infrastructure:
+          requires: [print_output_file]
 
       
