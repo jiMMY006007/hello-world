@@ -1,5 +1,4 @@
-# Exercise - Rollback
-AWSTemplateFormatVersion: 2010-09-09 
+AWSTemplateFormatVersion: 2010-09-09
 Resources:
   EC2Instance:
     Type: 'AWS::EC2::Instance'
