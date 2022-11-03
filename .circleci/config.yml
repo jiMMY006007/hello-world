@@ -5,59 +5,68 @@ commands:
     steps:
       - run: echo $CIRCLE_WORKFLOW_ID #<< parameters.to >>
 
+  destroy_environment:
+    steps:
+      - run:
+          name: Destroy environment
+          # ${CIRCLE_WORKFLOW_ID} is a Built-in environment variable 
+          # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID 
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
 jobs:
-  # say-hello:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - run:
-  #         name: "Say hello"
-  #         command: "echo Hello, World!"
+#   say-hello:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - run:
+#           name: "Say hello"
+#           command: "echo Hello, World!"
 
-  # print-env-variable:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - run:
-  #         name: "this is my name >> "
-  #         command: echo ${My_Name}
-  #     - print_pipeline_id
+#   print-env-variable:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - run:
+#           name: "this is my name >> "
+#           command: echo ${My_Name}
+#       - print_pipeline_id
 
-  # save_hello_world_output:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - run:
-  #         name: "create file"
-  #         command: |
-  #           echo " hello world !! from the output " > output.txt
-  #     - persist_to_workspace:
-  #         root: ~/    
-  #         paths: 
-  #          - ./*
+#   save_hello_world_output:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - run:
+#           name: "create file"
+#           command: |
+#             echo " hello world !! from the output " > output.txt
+#       - persist_to_workspace:
+#           root: ~/    
+#           paths: 
+#            - ./*
 
-  # print_output_file:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         command: |
-  #           cat output.txt
+#   print_output_file:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - attach_workspace:
+#           at: ~/
+#       - run:
+#           command: |
+#             cat output.txt
 
-  # create_infrastructure: 
-  #     docker:
-  #       - image: amazon/aws-cli
-  #     steps:
-  #       - checkout
-  #       - run:
-  #           name: Create Cloudformation Stack
-  #           command: |
-  #             aws cloudformation deploy \
-  #               --template-file template.yml \
-  #               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-  #               --region us-east-1
+  create_infrastructure: 
+      docker:
+        - image: amazon/aws-cli
+      steps:
+        - checkout
+        - run:
+            name: Create Cloudformation Stack
+            command: |
+              aws cloudformation deploy \
+                --template-file template.yml \
+                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+                --region us-east-1
 
   # get_EC2_PublicIpAddress: 
   #     docker:
@@ -101,14 +110,18 @@ jobs:
         - run:
             name: smoke test
             command: |
-              URL="https://blog.udacity.com/"
-              # Test if website exists
-              if curl -s --head ${URL} 
-              then
-                return 0
-              else
+              # URL="https://blog.udacity.com/"
+              # # Test if website exists
+              # if curl -s --head ${URL} 
+              # then
+              #   return 0
+              # else
                 return 1
-              fi
+              # fi
+
+        - destroy_environment
+          when: on_fail
+
 workflows:
   my-workflow:
     jobs:
@@ -118,11 +131,10 @@ workflows:
       # - save_hello_world_output
       # - print_output_file:
       #     requires: [save_hello_world_output]
-      # - create_infrastructure:
-      #     requires: [print_output_file]
+      - create_infrastructure
       # - get_EC2_PublicIpAddress:
       #     requires: [create_infrastructure]
       # - configure_infrastructure:
       #     requires: [get_EC2_PublicIpAddress]
-      
-       - smoke_test
+      - smoke_test:
+          requires: [create_infrastructure]
