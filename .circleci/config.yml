@@ -22,7 +22,8 @@ jobs:
       - run:
           name: "Say hello"
           command: |
-            cat ~/config.yml
+            pwd
+            ls -la
 
 #   print-env-variable:
 #     docker:
