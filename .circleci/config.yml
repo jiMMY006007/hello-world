@@ -167,19 +167,19 @@ jobs:
 workflows:
   my-workflow:
     jobs:
-      # - say-hello
+       - say-hello
       # - print-env-variable:
       #     requires: [say-hello]
       # - save_hello_world_output
       # - print_output_file:
       #     requires: [save_hello_world_output]
-      - create_and_deploy_front_end
-      - promote_to_production:
-          requires: 
-            - create_and_deploy_front_end
-      - get_last_deployment_id
-      - clean_up_old_front_end:
-          requires:
-            - get_last_deployment_id
-            - promote_to_production
+      # - create_and_deploy_front_end
+      # - promote_to_production:
+      #     requires: 
+      #       - create_and_deploy_front_end
+      # - get_last_deployment_id
+      # - clean_up_old_front_end:
+      #     requires:
+      #       - get_last_deployment_id
+      #       - promote_to_production
 
