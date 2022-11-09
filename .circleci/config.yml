@@ -35,28 +35,28 @@ jobs:
 #           command: echo ${My_Name}
 #       - print_pipeline_id
 
-#   save_hello_world_output:
-#     docker:
-#       - image: circleci/node:13.8.0
-#     steps:
-#       - run:
-#           name: "create file"
-#           command: |
-#             echo " hello world !! from the output " > output.txt
-#       - persist_to_workspace:
-#           root: ~/    
-#           paths: 
-#            - ./*
+  save_hello_world_output:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - run:
+          name: "create file"
+          command: |
+            echo " hello world !! from the output " > .circleci/test.txt
+      - persist_to_workspace:
+          root: ~/    
+          paths: 
+           - .circleci/test.txt
 
-#   print_output_file:
-#     docker:
-#       - image: circleci/node:13.8.0
-#     steps:
-#       - attach_workspace:
-#           at: ~/
-#       - run:
-#           command: |
-#             cat output.txt
+  print_output_file:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          command: |
+            cat .circleci/test.txt
 
   # create_infrastructure: 
   #     docker:
@@ -172,9 +172,9 @@ workflows:
        - say-hello
       # - print-env-variable:
       #     requires: [say-hello]
-      # - save_hello_world_output
-      # - print_output_file:
-      #     requires: [save_hello_world_output]
+       - save_hello_world_output
+       - print_output_file:
+          requires: [save_hello_world_output]
       # - create_and_deploy_front_end
       # - promote_to_production:
       #     requires: 
