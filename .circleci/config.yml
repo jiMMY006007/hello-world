@@ -22,7 +22,7 @@ jobs:
       - run:
           name: "Say hello"
           command: |
-            cat ~/README.md
+            cat ~/config.yml
 
 #   print-env-variable:
 #     docker:
